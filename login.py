@@ -44,6 +44,20 @@ SenhaEntry = ttk.Entry(FrameDireita, width=32, show="*")
 SenhaEntry.place(x=100, y=160)
 
 
+def Home():
+    UsuarioLabel.place(x=5000)
+    UsuarioEntry.place(x=5000)
+    SenhaLabel.place(x=5000)
+    SenhaEntry.place(x=5000)
+    BotaoLogin.place(x=5000)
+    BotaoCadastro.place(x=5000)
+    btnlogout = ttk.Button(
+        FrameDireita, text="Sair", width=20, command=janela.destroy)
+    btnlogout.place(x=150, y=250)
+    ButtonCafe = ttk.Button(FrameDireita, text='Café', width=40)
+    ButtonCafe.place(x=90, y=50)
+    ButtonCapuccino = ttk.Button(FrameDireita, text='Capuccino', width=40)
+    ButtonCapuccino.place(x=90, y=80)
 
 
 def bdLogin():
@@ -60,15 +74,7 @@ def bdLogin():
         VerificaLogin = DataBaser.cursor.fetchone()
         try:
             if(login in VerificaLogin and senha in VerificaLogin):
-                UsuarioLabel.place(x=5000)
-                UsuarioEntry.place(x=5000)
-                SenhaLabel.place(x=5000)
-                SenhaEntry.place(x=5000)
-                BotaoLogin.place(x=5000)
-                BotaoCadastro.place(x=5000)
-                btnlogout = ttk.Button(
-                    FrameDireita, text="Sair", width=20, command=janela.destroy)
-                btnlogout.place(x=150, y=250)
+                Home()
 
         except:
             messagebox.showerror(title="Login Info",
@@ -105,13 +111,23 @@ def btnCadastro():
         login = UsuarioEntry.get()
         senha = SenhaEntry.get()
 
-        if(nome == "" or email == "" or login == "" or senha == ""):
-            messagebox.showerror(
-                title="Erro", message="Não Deixe Campo Vazio. Preencha Todos os Campos")
-        else:
+        DataBaser.cursor.execute("""
+            SELECT * FROM Cliente
+            WHERE ( Email  = ? or Login = ?)
+            """, (email, login))
+        verificarCadastro = DataBaser.cursor.fetchone()
+
+        try:
+            if(nome == "" or email == "" or login == "" or senha == ""):
+                messagebox.showerror(
+                    title="Erro", message="Não Deixe Campo Vazio. Preencha Todos os Campos")
+            elif(email in verificarCadastro or login in verificarCadastro):
+                messagebox.showerror(
+                    title="ERROR", message="Usuario ja exitente")
+        except:
             DataBaser.cursor.execute("""
-            INSERT INTO CLIENTE(Nome, Email, Login, Senha) values(?, ?, ?, ?)
-            """, (nome, email, login, senha))
+                    INSERT INTO CLIENTE(Nome, Email, Login, Senha) values(?, ?, ?, ?)
+                    """, (nome, email, login, senha))
             DataBaser.conn.commit()
             messagebox.showinfo(title="Informações de Cadastro",
                                 message="Cadastro Efetuado com Sucesso")
